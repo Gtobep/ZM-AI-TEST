@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>图表切换测试</title>
+<script src="https://fastly.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; }
+.tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+.tab { padding: 8px 16px; border: 1px solid #ccc; cursor: pointer; background: #f5f5f5; }
+.tab.active { background: #007acc; color: white; }
+.chart-panel { display: none; width: 800px; height: 400px; border: 1px solid #ddd; }
+.chart-panel.active { display: block; }
+.chart-box { width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+
+<h2>图表切换测试</h2>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab(0)">图表 1</div>
+  <div class="tab" onclick="switchTab(1)">图表 2</div>
+  <div class="tab" onclick="switchTab(2)">图表 3</div>
+</div>
+
+<div class="chart-panel active" id="panel-0">
+  <div class="chart-box" id="chart0"></div>
+</div>
+<div class="chart-panel" id="panel-1">
+  <div class="chart-box" id="chart1"></div>
+</div>
+<div class="chart-panel" id="panel-2">
+  <div class="chart-box" id="chart2"></div>
+</div>
+
+<div id="log" style="margin-top: 20px; padding: 10px; background: #f0f0f0; white-space: pre;"></div>
+
+<script>
+// 日志函数
+function log(msg) {
+  console.log(msg);
+  document.getElementById('log').textContent += new Date().toLocaleTimeString() + ': ' + msg + '\n';
+}
+
+// 测试数据
+const testData = [
+  {day: 1, val1: 10, val2: 15, val3: 8},
+  {day: 2, val1: 15, val2: 12, val3: 10},
+  {day: 3, val1: 20, val2: 18, val3: 12},
+  {day: 4, val1: 25, val2: 22, val3: 15}
+];
+
+let charts = [];
+
+// 初始化图表
+function initCharts() {
+  log('开始初始化图表...');
+  log('ECharts版本: ' + (echarts.version || '未知'));
+
+  const days = testData.map(d => d.day);
+  const val1 = testData.map(d => d.val1);
+  const val2 = testData.map(d => d.val2);
+  const val3 = testData.map(d => d.val3);
+
+  // 图表1
+  const chart0 = echarts.init(document.getElementById('chart0'));
+  chart0.setOption({
+    title: { text: '图表 1 - 折线图' },
+    xAxis: { type: 'category', data: days },
+    yAxis: { type: 'value' },
+    series: [{ data: val1, type: 'line', name: '数据1' }]
+  });
+  log('图表1初始化完成');
+
+  // 图表2
+  const chart1 = echarts.init(document.getElementById('chart1'));
+  chart1.setOption({
+    title: { text: '图表 2 - 柱状图' },
+    xAxis: { type: 'category', data: days },
+    yAxis: { type: 'value' },
+    series: [{ data: val2, type: 'bar', name: '数据2' }]
+  });
+  log('图表2初始化完成');
+
+  // 图表3
+  const chart2 = echarts.init(document.getElementById('chart2'));
+  chart2.setOption({
+    title: { text: '图表 3 - 组合图' },
+    xAxis: { type: 'category', data: days },
+    yAxis: { type: 'value' },
+    series: [
+      { data: val1, type: 'line', name: '线条' },
+      { data: val3, type: 'bar', name: '柱子' }
+    ]
+  });
+  log('图表3初始化完成');
+
+  charts = [chart0, chart1, chart2];
+  log('所有图表初始化完成，总数: ' + charts.length);
+
+  // 验证图表数组
+  for (let i = 0; i < charts.length; i++) {
+    log('图表 ' + i + ': ' + (charts[i] ? 'OK' : 'ERROR'));
+  }
+}
+
+// 切换标签
+function switchTab(index) {
+  log('切换到标签: ' + index);
+
+  const panels = document.querySelectorAll('.chart-panel');
+  const tabs = document.querySelectorAll('.tab');
+
+  // 更新面板显示
+  panels.forEach((panel, i) => {
+    const isActive = i === index;
+    panel.classList.toggle('active', isActive);
+    log('面板 ' + i + ' 激活状态: ' + isActive);
+  });
+
+  // 更新标签样式
+  tabs.forEach((tab, i) => {
+    const isActive = i === index;
+    tab.classList.toggle('active', isActive);
+    log('标签 ' + i + ' 激活状态: ' + isActive);
+  });
+
+  // 调整图表大小
+  if (charts[index]) {
+    charts[index].resize();
+    log('图表 ' + index + ' 大小已调整');
+  } else {
+    log('错误: 图表 ' + index + ' 不存在！');
+  }
+}
+
+// 页面加载后初始化
+window.addEventListener('load', function() {
+  log('页面加载完成，开始初始化...');
+  setTimeout(initCharts, 100);
+});
+
+// 调试：点击事件监听
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('tab')) {
+    log('检测到标签点击: ' + e.target.textContent);
+  }
+});
+</script>
+
+</body>
+</html>
