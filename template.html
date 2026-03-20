@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>机甲安卓 · 买量 vs 渠道 LTV倍率分析</title>
+<script>__ECHARTS__</script>
+<style>
+/* ===== PASSWORD PROTECTION ===== */
+.auth-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:#0d1117;z-index:9999;display:flex;align-items:center;justify-content:center;
+}
+.auth-box{
+  background:#111827;border:1px solid #1e2535;border-radius:12px;padding:32px;text-align:center;min-width:350px;
+}
+.auth-box h2{color:#f1f5f9;font-size:18px;margin-bottom:8px;font-weight:700;}
+.auth-box p{color:#64748b;font-size:13px;margin-bottom:24px;line-height:1.6;}
+.auth-input{
+  width:100%;padding:12px 16px;background:#0d1117;border:1px solid #1e2535;border-radius:8px;
+  color:#e2e8f0;font-size:14px;margin-bottom:16px;text-align:center;letter-spacing:2px;
+}
+.auth-input:focus{outline:none;border-color:#60a5fa;}
+.auth-input.error{border-color:#f87171;animation:shake 0.5s;}
+.auth-btn{
+  width:100%;padding:12px;background:#1d4ed8;color:#fff;border:none;border-radius:8px;
+  font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;
+}
+.auth-btn:hover{background:#1e40af;}
+.auth-error{color:#f87171;font-size:12px;margin-top:8px;min-height:16px;}
+.content-wrapper{display:none;}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-5px)}
+  75%{transform:translateX(5px)}
+}
+/* ===== END PASSWORD ===== */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#0d1117;color:#e2e8f0;min-height:100vh}
+.header{padding:28px 36px 20px;border-bottom:1px solid #1e2535}
+.header h1{font-size:20px;font-weight:700;color:#f1f5f9}
+.header p{margin-top:5px;font-size:12px;color:#475569}
+.qa-section{margin:20px 36px 0;background:#111827;border:1px solid #1e2535;border-radius:12px;overflow:hidden}
+.qa-header{background:#1e2535;padding:11px 20px;font-size:12px;font-weight:700;color:#94a3b8;letter-spacing:.6px;text-transform:uppercase}
+.qa-block{padding:16px 20px;border-bottom:1px solid #1a2540}
+.qa-block:last-child{border-bottom:none}
+.qa-q{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}
+.qa-q .tag{background:#1d4ed8;color:#bfdbfe;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;white-space:nowrap;margin-top:1px}
+.qa-q .text{font-size:13px;color:#f1f5f9;font-weight:600;line-height:1.5}
+.qa-a{display:flex;gap:10px;align-items:flex-start}
+.qa-a .tag{background:#065f46;color:#6ee7b7;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;white-space:nowrap;margin-top:1px}
+.qa-a .text{font-size:12px;color:#94a3b8;line-height:1.8}
+.qa-a .text b{color:#e2e8f0}
+.kpi-bar{display:flex;gap:12px;padding:20px 36px;flex-wrap:wrap}
+.kpi-card{background:#111827;border:1px solid #1e2535;border-radius:10px;padding:14px 18px;flex:1;min-width:160px}
+.kpi-card .label{font-size:11px;color:#64748b;letter-spacing:.4px;margin-bottom:6px}
+.kpi-card .value{font-size:22px;font-weight:800}
+.kpi-card .sub{font-size:11px;color:#475569;margin-top:3px;line-height:1.5}
+.kpi-card.blue .value{color:#60a5fa}
+.kpi-card.orange .value{color:#fb923c}
+.kpi-card.green .value{color:#34d399}
+.kpi-card.red .value{color:#f87171}
+.table-section{margin:0 36px 20px;background:#111827;border:1px solid #1e2535;border-radius:12px;overflow:hidden}
+.table-header{background:#1e2535;padding:11px 20px;display:flex;justify-content:space-between;align-items:center}
+.table-header span{font-size:13px;font-weight:600;color:#f1f5f9}
+.table-header small{font-size:11px;color:#64748b}
+table{width:100%;border-collapse:collapse}
+thead tr{background:#161d2e}
+th{font-size:11px;color:#64748b;font-weight:600;padding:10px 16px;text-align:right;letter-spacing:.3px;border-bottom:1px solid #1e2535}
+th:first-child{text-align:left}
+td{font-size:12px;padding:9px 16px;text-align:right;border-bottom:1px solid #161d2e;color:#94a3b8}
+td:first-child{text-align:left;font-weight:600;color:#e2e8f0}
+tr:last-child td{border-bottom:none}
+.tphase{font-size:10px;padding:1px 6px;border-radius:3px;margin-left:6px;font-weight:600}
+.p-eq{background:#1e3a5f;color:#93c5fd}
+.p-buy{background:#3b1f1f;color:#fca5a5}
+.p-ch{background:#1a3d2e;color:#6ee7b7}
+.p-star{background:#3d2e00;color:#fde68a}
+.hl{color:#f1f5f9 !important;font-weight:700}
+.dp{color:#34d399 !important;font-weight:700}
+.dn{color:#f87171 !important;font-weight:700}
+.dz{color:#fbbf24 !important;font-weight:700}
+.chart-section{padding:0 36px 36px}
+.tabs{display:flex;gap:4px}
+.tab{padding:8px 16px;border-radius:8px 8px 0 0;font-size:12px;cursor:pointer;border:1px solid transparent;border-bottom:none;color:#64748b;transition:all .2s}
+.tab.active{background:#111827;border-color:#1e2535;color:#f1f5f9}
+.tab:hover:not(.active){color:#94a3b8}
+.chart-panel{display:none;background:#111827;border:1px solid #1e2535;border-radius:0 10px 10px 10px;padding:20px}
+.chart-panel.active{display:block}
+.chart-title{font-size:14px;font-weight:700;color:#f1f5f9;margin-bottom:3px}
+.chart-desc{font-size:11px;color:#64748b;margin-bottom:14px;line-height:1.6}
+.chart-box{width:100%;height:380px}
+.insight-row{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
+.chip{background:#161d2e;border:1px solid #1e2535;border-radius:6px;padding:8px 14px;font-size:11px;color:#94a3b8;flex:1;min-width:200px;line-height:1.7}
+.chip b{color:#e2e8f0}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD PROTECTION -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <h2>🔒 数据访问验证</h2>
+    <p>此报告包含内部分析数据<br>请输入访问密码继续查看</p>
+    <input type="password" class="auth-input" id="passwordInput" placeholder="请输入访问密码" maxlength="20">
+    <button class="auth-btn" onclick="checkPassword()">验证访问</button>
+    <div class="auth-error" id="authError"></div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT (HIDDEN BY DEFAULT) -->
+<div class="content-wrapper" id="contentWrapper">
+
+<div class="header">
+  <h1>机甲安卓 · 买量 vs 渠道 LTV倍率分析</h1>
+  <p>数据周期：第1天 — 第720天 &nbsp;|&nbsp; 买量Day1 LTV基数：2.99元 &nbsp;|&nbsp; 渠道Day1 LTV基数：1.20元 &nbsp;|&nbsp; LTV倍率 = LTV_n ÷ LTV_Day1</p>
+</div>
+
+<div class="qa-section">
+  <div class="qa-header">核心问题 &amp; 关键结论</div>
+  <div class="qa-block">
+    <div class="qa-q">
+      <div class="tag">Q1</div>
+      <div class="text">为什么随着天数延长，渠道安卓的LTV倍率会大于买量安卓？</div>
+    </div>
+    <div class="qa-a">
+      <div class="tag">A</div>
+      <div class="text">LTV倍率 = 当天累计LTV ÷ Day1 LTV。<b>渠道Day1 LTV基数（1.20元）仅是买量（2.99元）的40%</b>，分母小2.49倍——这意味着渠道用户每新增1元收入，对倍率的拉升效果是买量的<b>2.49倍</b>。买量用户因广告点击首日冲动消费拉高了分母，后续每天增量对倍率贡献反而弱。随着时间推移，渠道用户的长期留存优势不断累积，叠加分母的天然放大效应，倍率最终持续领先。</div>
+    </div>
+  </div>
+  <div class="qa-block">
+    <div class="qa-q">
+      <div class="tag">Q2</div>
+      <div class="text">为什么LTV倍率差异不是从头到尾保持差距不大？前面接近0，到720天时差距达到4？</div>
+    </div>
+    <div class="qa-a">
+      <div class="tag">A</div>
+      <div class="text">
+        差值走势分三个阶段：<br>
+        <b>① Day1–44（差值 ≈ 0~+0.2，初期接近）：</b>渠道每日绝对LTV增量与买量的比值略高于临界阈值0.401，两者倍率增速相当，差距极小。<br>
+        <b>② Day45–204（差值短暂为负，最深约−0.84）：</b>买量用户在第1.5–6个月出现"中期二次付费"集中释放，绝对增量比跌破0.401，买量倍率暂时领先，差值变负。<br>
+        <b>③ Day205+（差值持续扩大至+4.65）：</b>渠道"慢热型高价值用户"深度使用后陆续转化，每日绝对增量比持续高于0.401，叠加2.49倍的分母放大效应，差值不断累积，720天时达到 <b>+4.65</b>，且仍未见顶。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="kpi-bar">
+  <div class="kpi-card blue">
+    <div class="label">买量 Day720 LTV倍率</div>
+    <div class="value">55.5x</div>
+    <div class="sub">Day1基数 2.99元 → Day720累计 166元</div>
+  </div>
+  <div class="kpi-card orange">
+    <div class="label">渠道 Day720 LTV倍率</div>
+    <div class="value">60.2x</div>
+    <div class="sub">Day1基数 1.20元 → Day720累计 72元</div>
+  </div>
+  <div class="kpi-card green">
+    <div class="label">Day720 倍率差值</div>
+    <div class="value">+4.65</div>
+    <div class="sub">渠道持续领先，差距仍在扩大</div>
+  </div>
+  <div class="kpi-card red">
+    <div class="label">渠道持续超越买量起点</div>
+    <div class="value">Day 205</div>
+    <div class="sub">约第7个月，此后差距持续扩大、未再回落</div>
+  </div>
+</div>
+
+<div class="table-section">
+  <div class="table-header">
+    <span>关键节点数据对比</span>
+    <small>蓝色=买量领先 &nbsp;|&nbsp; 橙色=渠道领先 &nbsp;|&nbsp; ⭐=持续超越起点</small>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>天数节点</th>
+        <th>阶段</th>
+        <th>买量累计LTV</th>
+        <th>渠道累计LTV</th>
+        <th>买量LTV倍率</th>
+        <th>渠道LTV倍率</th>
+        <th>倍率差（渠道−买量）</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Day 1</td>
+        <td><span class="tphase p-eq">起始基准</span></td>
+        <td class="hl">2.99 元</td>
+        <td>1.20 元</td>
+        <td>—</td><td>—</td><td>—</td>
+      </tr>
+      <tr>
+        <td>Day 30</td>
+        <td><span class="tphase p-eq">初期接近</span></td>
+        <td>35.42 元</td><td>14.42 元</td>
+        <td>11.85x</td>
+        <td class="hl">12.02x</td>
+        <td class="dp">+0.17</td>
+      </tr>
+      <tr>
+        <td>Day 90</td>
+        <td><span class="tphase p-buy">买量短暂领先</span></td>
+        <td>70.05 元</td><td>27.40 元</td>
+        <td class="hl">23.43x</td>
+        <td>22.83x</td>
+        <td class="dn">−0.60</td>
+      </tr>
+      <tr>
+        <td>Day 180</td>
+        <td><span class="tphase p-buy">差距收窄中</span></td>
+        <td>101.88 元</td><td>40.49 元</td>
+        <td class="hl">34.07x</td>
+        <td>33.74x</td>
+        <td class="dn">−0.33</td>
+      </tr>
+      <tr style="background:#1a2d1a">
+        <td>Day 205</td>
+        <td><span class="tphase p-star">⭐ 持续超越起点</span></td>
+        <td>107.49 元</td><td>43.14 元</td>
+        <td>35.95x</td>
+        <td class="hl">35.95x</td>
+        <td class="dz">0.00（持平后不再回落）</td>
+      </tr>
+      <tr>
+        <td>Day 365</td>
+        <td><span class="tphase p-ch">渠道领先扩大</span></td>
+        <td>135.29 元</td><td>56.40 元</td>
+        <td>45.25x</td>
+        <td class="hl">47.00x</td>
+        <td class="dp">+1.75</td>
+      </tr>
+      <tr>
+        <td>Day 540</td>
+        <td><span class="tphase p-ch">持续拉开</span></td>
+        <td>155.43 元</td><td>66.55 元</td>
+        <td>51.98x</td>
+        <td class="hl">55.46x</td>
+        <td class="dp">+3.48</td>
+      </tr>
+      <tr>
+        <td>Day 720</td>
+        <td><span class="tphase p-ch">最终差距</span></td>
+        <td>166.01 元</td><td>72.21 元</td>
+        <td>55.52x</td>
+        <td class="hl">60.18x</td>
+        <td class="dp">+4.65</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="chart-section">
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(0)">① LTV倍率对比</div>
+    <div class="tab" onclick="switchTab(1)">② 倍率差值走势</div>
+    <div class="tab" onclick="switchTab(2)">③ LTV绝对值</div>
+    <div class="tab" onclick="switchTab(3)">④ 付费率对比</div>
+    <div class="tab" onclick="switchTab(4)">⑤ ARPU对比</div>
+  </div>
+
+  <div class="chart-panel active" id="panel-0">
+    <div class="chart-title">LTV 倍率对比（渠道 vs 买量）</div>
+    <div class="chart-desc">重点关注黄色竖线（Day205）前后的交叉变化：Day205前买量倍率略高，Day205后渠道倍率持续拉开。</div>
+    <div class="chart-box" id="chart0"></div>
+    <div class="insight-row">
+      <div class="chip">📌 <b>Day1–44</b>：两线几乎重叠，差值±0.2以内，分母优势被买量活跃回购抵消</div>
+      <div class="chip">📌 <b>Day45–204</b>：买量中期二次付费集中爆发，倍率短暂领先，最大差距约 −0.84（Day137）</div>
+      <div class="chip">📌 <b>Day205+</b>：渠道持续领先，720天差距达 <b>+4.65</b>，核心驱动：分母放大2.49倍 × 长期留存优势</div>
+    </div>
+  </div>
+
+  <div class="chart-panel" id="panel-1">
+    <div class="chart-title">LTV 倍率差值（渠道倍率 − 买量倍率）</div>
+    <div class="chart-desc">绿色=渠道领先，红色=买量领先。Day205是永久性转折点，此后差值再未回到负值。</div>
+    <div class="chart-box" id="chart1"></div>
+    <div class="insight-row">
+      <div class="chip">📌 <b>三阶段</b>：初期接近（Day1–44）→ 买量短暂领先（Day45–204）→ 渠道持续扩大（Day205–720）</div>
+      <div class="chip">📌 <b>买量领先最深点</b>：Day137，差值 −0.84，买量用户中期二次付费高峰</div>
+      <div class="chip">📌 <b>渠道领先终点</b>：Day720，差值 +4.65，仍在扩大趋势中，尚未见顶</div>
+    </div>
+  </div>
+
+  <div class="chart-panel" id="panel-2">
+    <div class="chart-title">累计 LTV 绝对值（元/人）</div>
+    <div class="chart-desc">买量Day1 LTV（2.99元）是渠道（1.20元）的2.49倍，绝对值长期买量更高，但增速渠道更快。</div>
+    <div class="chart-box" id="chart2"></div>
+    <div class="insight-row">
+      <div class="chip">📌 Day1：买量 <b>2.99元</b> vs 渠道 <b>1.20元</b>，差距源于广告点击用户的首日冲动消费</div>
+      <div class="chip">📌 Day720：买量累计 <b>166元</b>，渠道 <b>72元</b>，绝对值买量仍高，但倍率增长渠道已领先</div>
+    </div>
+  </div>
+
+  <div class="chart-panel" id="panel-3">
+    <div class="chart-title">每日付费率对比（付费用户 / 当日活跃）</div>
+    <div class="chart-desc">买量付费率始终高于渠道，但渠道付费率长期提升趋势更稳健。</div>
+    <div class="chart-box" id="chart3"></div>
+    <div class="insight-row">
+      <div class="chip">📌 买量付费率长期 <b>6–20%</b>，渠道 <b>1–9%</b>，买量用户付费意愿更强但波动更大</div>
+      <div class="chip">📌 渠道付费率<b>稳步提升</b>，配合低基数分母，驱动倍率长期持续超越买量</div>
+    </div>
+  </div>
+
+  <div class="chart-panel" id="panel-4">
+    <div class="chart-title">ARPU对比（每付费用户平均收入）</div>
+    <div class="chart-desc">🔑 <b>这是"长期留存优势累积"的直接证据</b>：渠道用户单次付费金额更高且越来越高，体现深度使用价值。</div>
+    <div class="chart-box" id="chart4"></div>
+    <div class="insight-row">
+      <div class="chip">📌 <b>Day1–180</b>：渠道ARPU持续高于买量，最高时是买量的1.27倍（Day16：285元 vs 224元）</div>
+      <div class="chip">📌 <b>Day180+</b>：虽然绝对差距收窄，但渠道ARPU始终稳定在更高水平，体现用户质量优势</div>
+      <div class="chip">📌 <b>累积效应</b>：高ARPU × 稳定付费率增长 = LTV倍率的持续拉升，这正是"慢热型高价值用户"的特征</div>
+    </div>
+  </div>
+</div>
+
+<!-- END MAIN CONTENT -->
+
+<script>
+// PASSWORD PROTECTION
+const PASSWORD = 'idswr2026';
+const passwordInput = document.getElementById('passwordInput');
+const authOverlay = document.getElementById('authOverlay');
+const contentWrapper = document.getElementById('contentWrapper');
+const authError = document.getElementById('authError');
+
+function checkPassword() {
+  const inputVal = passwordInput.value.trim();
+  if (inputVal === PASSWORD) {
+    authOverlay.style.display = 'none';
+    contentWrapper.style.display = 'block';
+    initCharts(); // 初始化图表
+  } else {
+    passwordInput.classList.add('error');
+    authError.textContent = '密码错误，请重新输入';
+    passwordInput.value = '';
+    setTimeout(() => passwordInput.classList.remove('error'), 500);
+  }
+}
+
+passwordInput.addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') checkPassword();
+});
+
+passwordInput.addEventListener('input', function() {
+  authError.textContent = '';
+});
+
+// 初始化图表函数
+function initCharts() {
+const RAW = __DATA__;
+
+const days=RAW.map(d=>d.day);
+const buyRatio=RAW.map(d=>d.buy_ltv_ratio);
+const chRatio=RAW.map(d=>d.channel_ltv_ratio);
+const diff=RAW.map(d=>d.ltv_ratio_diff);
+const buyLtv=RAW.map(d=>d.buy_ltv);
+const chLtv=RAW.map(d=>d.channel_ltv);
+const buyPay=RAW.map(d=>d.buy_pay_rate);
+const chPay=RAW.map(d=>d.channel_pay_rate);
+const buyArpu=RAW.map(d=>d.buy_arpu);
+const chArpu=RAW.map(d=>d.channel_arpu);
+
+const BLUE='#60a5fa',ORANGE='#fb923c',GREEN='#34d399',RED='#f87171',YELLOW='#fbbf24';
+const GRID='#1e2535',TEXT='#475569';
+
+const baseGrid={left:64,right:32,top:36,bottom:44};
+const baseXAxis={type:'category',data:days,axisLine:{lineStyle:{color:GRID}},axisTick:{show:false},axisLabel:{color:TEXT,fontSize:10,interval:59,formatter:v=>'D'+v},splitLine:{show:false}};
+const baseYAxis={axisLine:{show:false},axisTick:{show:false},axisLabel:{color:TEXT,fontSize:10},splitLine:{lineStyle:{color:GRID,type:'dashed'}}};
+const baseLegend={top:4,textStyle:{color:'#94a3b8',fontSize:11},itemWidth:14,itemHeight:3};
+const baseTip={trigger:'axis',backgroundColor:'#1e2535',borderColor:'#334155',textStyle:{color:'#e2e8f0',fontSize:11},axisPointer:{type:'cross',lineStyle:{color:'#2d3748'}}};
+
+const c0=echarts.init(document.getElementById('chart0'));
+c0.setOption({
+  backgroundColor:'transparent',grid:baseGrid,legend:baseLegend,
+  tooltip:{...baseTip,formatter:p=>{let s=`<b>第${p[0].axisValue}天</b><br/>`;p.forEach(x=>{if(x.value!=null)s+=`${x.marker}${x.seriesName}: <b>${x.value}x</b><br/>`;});return s;}},
+  xAxis:baseXAxis,yAxis:baseYAxis,
+  series:[
+    {name:'买量安卓',type:'line',data:buyRatio,smooth:true,symbol:'none',lineStyle:{color:BLUE,width:2.5},
+     markLine:{silent:true,symbol:'none',lineStyle:{type:'dashed',width:1.5},
+       data:[{xAxis:204,lineStyle:{color:YELLOW},label:{formatter:'Day205 渠道持续超越',color:YELLOW,fontSize:10,position:'insideEndTop'}}]}},
+    {name:'渠道安卓',type:'line',data:chRatio,smooth:true,symbol:'none',lineStyle:{color:ORANGE,width:2.5}},
+  ]
+});
+
+const c1=echarts.init(document.getElementById('chart1'));
+c1.setOption({
+  backgroundColor:'transparent',grid:baseGrid,legend:{show:false},
+  tooltip:{...baseTip,formatter:p=>{const v=p[0].value;if(v==null)return '';const sg=v>=0?'+':'';return `<b>第${p[0].axisValue}天</b><br/>${p[0].marker}倍率差: <b>${sg}${v}</b>`;}},
+  xAxis:baseXAxis,
+  yAxis:{...baseYAxis,axisLabel:{...baseYAxis.axisLabel,formatter:v=>(v>=0?'+':'')+v}},
+  series:[
+    {name:'倍率差',type:'bar',data:diff,barMaxWidth:4,
+     itemStyle:{color:p=>diff[p.dataIndex]!=null&&diff[p.dataIndex]>=0?GREEN:RED,borderRadius:[2,2,0,0]},
+     markLine:{silent:true,symbol:'none',lineStyle:{type:'dashed',width:1.5},
+       data:[
+         {yAxis:0,lineStyle:{color:'#374151',width:1,type:'solid'}},
+         {xAxis:204,lineStyle:{color:YELLOW},label:{formatter:'Day205',color:YELLOW,fontSize:10,position:'insideEndTop'}},
+         {xAxis:136,lineStyle:{color:RED,width:1,type:'dotted'},label:{formatter:'Day137 最深−0.84',color:RED,fontSize:9,position:'insideEndBottom'}}
+       ]}},
+    {name:'零线',type:'line',data:days.map(()=>0),symbol:'none',lineStyle:{color:'#2d3748',width:1},tooltip:{show:false}}
+  ]
+});
+
+const c2=echarts.init(document.getElementById('chart2'));
+c2.setOption({
+  backgroundColor:'transparent',grid:baseGrid,legend:baseLegend,
+  tooltip:{...baseTip,formatter:p=>{let s=`<b>第${p[0].axisValue}天</b><br/>`;p.forEach(x=>{if(x.value!=null)s+=`${x.marker}${x.seriesName}: <b>${x.value}元</b><br/>`;});return s;}},
+  xAxis:baseXAxis,
+  yAxis:{...baseYAxis,axisLabel:{...baseYAxis.axisLabel,formatter:v=>v+'元'}},
+  series:[
+    {name:'买量安卓',type:'line',data:buyLtv,smooth:true,symbol:'none',lineStyle:{color:BLUE,width:2},areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(96,165,250,0.15)'},{offset:1,color:'rgba(96,165,250,0)'}]}}},
+    {name:'渠道安卓',type:'line',data:chLtv,smooth:true,symbol:'none',lineStyle:{color:ORANGE,width:2},areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(251,146,60,0.15)'},{offset:1,color:'rgba(251,146,60,0)'}]}}},
+  ]
+});
+
+const c3=echarts.init(document.getElementById('chart3'));
+c3.setOption({
+  backgroundColor:'transparent',grid:baseGrid,legend:baseLegend,
+  tooltip:{...baseTip,formatter:p=>{let s=`<b>第${p[0].axisValue}天</b><br/>`;p.forEach(x=>{if(x.value!=null)s+=`${x.marker}${x.seriesName}: <b>${x.value}%</b><br/>`;});return s;}},
+  xAxis:baseXAxis,
+  yAxis:{...baseYAxis,axisLabel:{...baseYAxis.axisLabel,formatter:v=>v+'%'}},
+  series:[
+    {name:'买量安卓',type:'line',data:buyPay,smooth:true,symbol:'none',lineStyle:{color:BLUE,width:2},areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(96,165,250,0.12)'},{offset:1,color:'rgba(96,165,250,0)'}]}}},
+    {name:'渠道安卓',type:'line',data:chPay,smooth:true,symbol:'none',lineStyle:{color:ORANGE,width:2},areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(251,146,60,0.12)'},{offset:1,color:'rgba(251,146,60,0)'}]}}},
+  ]
+});
+
+const c4=echarts.init(document.getElementById('chart4'));
+c4.setOption({
+  backgroundColor:'transparent',grid:baseGrid,legend:baseLegend,
+  tooltip:{...baseTip,formatter:p=>{let s=`<b>第${p[0].axisValue}天</b><br/>`;p.forEach(x=>{if(x.value!=null&&x.value>0)s+=`${x.marker}${x.seriesName}: <b>${x.value}元</b><br/>`;});return s;}},
+  xAxis:baseXAxis,
+  yAxis:{...baseYAxis,axisLabel:{...baseYAxis.axisLabel,formatter:v=>v+'元'}},
+  series:[
+    {name:'买量安卓',type:'line',data:buyArpu,smooth:true,symbol:'none',lineStyle:{color:BLUE,width:2.5},
+     markLine:{silent:true,symbol:'none',lineStyle:{type:'dashed',width:1},
+       data:[{xAxis:15,lineStyle:{color:GREEN},label:{formatter:'Day16 渠道ARPU峰值 285元',color:GREEN,fontSize:9,position:'insideEndTop'}}]}},
+    {name:'渠道安卓',type:'line',data:chArpu,smooth:true,symbol:'none',lineStyle:{color:ORANGE,width:2.5}},
+  ]
+});
+
+const panels=document.querySelectorAll('.chart-panel');
+const tabs=document.querySelectorAll('.tab');
+const charts=[c0,c1,c2,c3,c4];
+function switchTab(i){panels.forEach((p,j)=>p.classList.toggle('active',i===j));tabs.forEach((t,j)=>t.classList.toggle('active',i===j));charts[i].resize();}
+window.addEventListener('resize',()=>charts.forEach(c=>c.resize()));
+
+} // 结束 initCharts 函数
+</script>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LTV倍率差异分析 - 机甲安卓买量vs渠道</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+            color: #fff;
+            padding: 40px;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 15px;
+        }
+        .section {
+            padding: 32px 40px;
+            border-bottom: 1px solid #eee;
+        }
+        .section:last-child {
+            border-bottom: none;
+        }
+        .chart-container {
+            margin: 24px 0;
+            text-align: center;
+        }
+        .chart-container img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .insight {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+        .insight h3 {
+            color: #1e3a5f;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        .insight ul {
+            list-style: none;
+            padding: 0;
+        }
+        .insight li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+        }
+        .insight li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #2d5a87;
+            font-weight: bold;
+        }
+        .highlight {
+            background: linear-gradient(120deg, #fef3c7 0%, #fde68a 100%);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #f59e0b;
+        }
+        .highlight strong {
+            color: #92400e;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #1e3a5f;
+        }
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        .positive {
+            color: #059669;
+            font-weight: 500;
+        }
+        .negative {
+            color: #dc2626;
+            font-weight: 500;
+        }
+        .footer {
+            background: #1e3a5f;
+            color: #fff;
+            padding: 20px 40px;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>LTV倍率差异分析</h1>
+            <p>机甲安卓：买量 vs 渠道 | 留存天数 0-719天</p>
+        </div>
+
+        <div class="section">
+            <h2>核心图表</h2>
+            <div class="chart-container">
+                <img src="ltv_analysis.png" alt="LTV分析图表">
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>图表解读</h2>
+
+            <div class="insight">
+                <h3>📊 图1: LTV绝对值对比</h3>
+                <ul>
+                    <li>买量安卓的LTV始终高于渠道安卓（约2.3-2.5倍）</li>
+                    <li>这说明买量用户质量更好，付费能力更强</li>
+                </ul>
+            </div>
+
+            <div class="insight">
+                <h3>📊 图2: LTV倍率对比</h3>
+                <ul>
+                    <li>初期两者接近，第44天出现交叉</li>
+                    <li>365天后渠道倍率快速超越买量</li>
+                    <li>第719天: 渠道60.17倍 > 买量55.52倍</li>
+                </ul>
+            </div>
+
+            <div class="insight">
+                <h3>📊 图3: LTV倍率差异</h3>
+                <ul>
+                    <li><strong>0-44天</strong>: 买量倍率略高（差异0~+0.3）</li>
+                    <li><strong>44-365天</strong>: 渠道开始超越（差异-0.7）</li>
+                    <li><strong>365天+</strong>: 差异快速扩大到+4.65</li>
+                </ul>
+            </div>
+
+            <div class="insight">
+                <h3>📊 图4: 留存率对比（核心原因）</h3>
+                <ul>
+                    <li><strong>0-365天</strong>: 买量留存率高于渠道</li>
+                    <li><strong>365天后</strong>: 渠道留存率反超买量！</li>
+                    <li>这是导致倍率差异扩大的<strong>根本原因</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>关键数据对比</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>指标</th>
+                        <th>买量安卓</th>
+                        <th>渠道安卓</th>
+                        <th>差异</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>新增用户数</td>
+                        <td>444,433</td>
+                        <td>1,710,999</td>
+                        <td>渠道是买量的3.85倍</td>
+                    </tr>
+                    <tr>
+                        <td>第0天LTV</td>
+                        <td>2.99元</td>
+                        <td>1.20元</td>
+                        <td class="positive">买量是渠道的2.49倍</td>
+                    </tr>
+                    <tr>
+                        <td>第30天留存率</td>
+                        <td>3.87%</td>
+                        <td>2.88%</td>
+                        <td class="positive">买量高0.99%</td>
+                    </tr>
+                    <tr>
+                        <td>第365天留存率</td>
+                        <td>0.84%</td>
+                        <td>0.97%</td>
+                        <td class="negative"><strong>渠道反超0.13%！</strong></td>
+                    </tr>
+                    <tr>
+                        <td>第719天LTV</td>
+                        <td>166.01元</td>
+                        <td>72.21元</td>
+                        <td>买量是渠道的2.30倍</td>
+                    </tr>
+                    <tr>
+                        <td>第719天LTV倍率</td>
+                        <td>55.52倍</td>
+                        <td>60.17倍</td>
+                        <td class="negative"><strong>渠道高4.65倍</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>问题解答</h2>
+
+            <div class="highlight">
+                <strong>Q1: 为什么渠道的LTV倍率最终大于买量？</strong><br><br>
+                两大原因：<br>
+                1. <strong>分母效应</strong>：渠道第0天LTV仅1.20元（买量2.99元的40%），同样赚10元，渠道被放大成8.3倍，买量仅3.3倍<br>
+                2. <strong>留存率反超</strong>：365天后渠道留存率(0.97%)反超买量(0.84%)，长周期用户占比更高
+            </div>
+
+            <div class="highlight">
+                <strong>Q2: 为什么倍率差异从0扩大到4.65？</strong><br><br>
+                三个阶段：<br>
+                • <strong>初期(0-44天)</strong>：买量倍率略高，差异+0.2<br>
+                • <strong>中期(44-365天)</strong>：渠道开始超越，差异转负到-0.7<br>
+                • <strong>远期(365天+)</strong>：留存率反超+复利累积，差异快速扩大到+4.65
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>结论</h2>
+            <div class="insight">
+                <ul>
+                    <li><strong>买量用户</strong>：早期付费能力强，但长期留存略差，LTV绝对值高</li>
+                    <li><strong>渠道用户</strong>：早期付费弱，但长期用户更稳定，LTV倍率更高</li>
+                    <li><strong>商业启示</strong>：如果只看LTV绝对值会低估渠道长期价值；只看倍率会低估买量ROI</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            报告生成 | 机甲安卓买量vs渠道LTV分析
+        </div>
+    </div>
+</body>
+</html>

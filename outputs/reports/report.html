@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分社区数据概况分析报告</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            padding: 40px;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header .subtitle {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+        .summary {
+            background: #f8f9fa;
+            padding: 24px 40px;
+            border-bottom: 1px solid #eee;
+        }
+        .summary p {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.8;
+        }
+        .section {
+            padding: 32px 40px;
+            border-bottom: 1px solid #eee;
+        }
+        .section:last-child {
+            border-bottom: none;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #4f46e5;
+            border-radius: 2px;
+        }
+        .conclusion {
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid #4f46e5;
+        }
+        .conclusion:last-child {
+            margin-bottom: 0;
+        }
+        .conclusion.high {
+            border-left-color: #dc2626;
+            background: #fef2f2;
+        }
+        .conclusion.medium {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+        .conclusion h3 {
+            font-size: 16px;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+        .conclusion p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 12px;
+        }
+        .conclusion .data-source {
+            font-size: 12px;
+            color: #888;
+            background: #fff;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+        .priority-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .priority-table th,
+        .priority-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .priority-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+        .priority-table tr:first-child td {
+            font-weight: 600;
+            color: #dc2626;
+        }
+        .quadrant {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .quadrant-card {
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        .quadrant-card.star {
+            background: #ecfdf5;
+            border-color: #10b981;
+        }
+        .quadrant-card.traffic {
+            background: #fff7ed;
+            border-color: #f97316;
+        }
+        .quadrant-card.potential {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+        .quadrant-card.watch {
+            background: #f9fafb;
+            border-color: #6b7280;
+        }
+        .quadrant-card h4 {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .quadrant-card.star h4 { color: #059669; }
+        .quadrant-card.traffic h4 { color: #ea580c; }
+        .quadrant-card.potential h4 { color: #2563eb; }
+        .quadrant-card.watch h4 { color: #4b5563; }
+        .quadrant-card ul {
+            font-size: 13px;
+            color: #555;
+            list-style: none;
+        }
+        .quadrant-card li {
+            padding: 2px 0;
+        }
+        .footer {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 20px 40px;
+            text-align: center;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge-high {
+            background: #dc2626;
+            color: #fff;
+        }
+        .badge-medium {
+            background: #f59e0b;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>分社区数据概况分析报告</h1>
+            <div class="subtitle">分析周期：2025年11月1日 - 12月2日（32天）| 社区数量：19个</div>
+        </div>
+
+        <div class="summary">
+            <p><strong>整体结论：</strong>19个游戏社区中17个呈下降趋势，仅元梦之星(+5.1%)和肥狐乐园(+1.9%)正增长。头部社区(王者荣耀、蛋仔派对)日活高但参与度低，小社区参与深度好但流量不足。需重点关注元梦之星等增长社区，同时激活头部社区的用户参与度。</p>
+        </div>
+
+        <div class="section">
+            <div class="section-title">核心发现</div>
+
+            <div class="conclusion high">
+                <h3>1. 整体趋势严峻 — 17/19社区下降 <span class="badge badge-high">高优先</span></h3>
+                <p>整体趋势严峻，元梦之星(+5.1%)和肥狐乐园(+1.9%)是唯二正增长社区。原神(-13.5%)、崩坏(-21.3%)、桃源(-31.4%)下降最严重。</p>
+                <div class="data-source">数据：元梦之星增长率5.14% | 肥狐乐园增长率1.85% | 原神增长率-13.53% | 崩坏：星穹铁道增长率-21.28% | 桃源深处有人家增长率-31.43%</div>
+            </div>
+
+            <div class="conclusion high">
+                <h3>2. 头部社区参与度偏低 — 用户质量待提升 <span class="badge badge-high">高优先</span></h3>
+                <p>王者荣耀(7.7万日活)发言率仅0.62%、互动率1.33%；蛋仔派对发言率0.60%。相比之下，小社区未定事件簿发言率321%、互动率671%。</p>
+                <div class="data-source">数据：王者荣耀日活77195，发言率0.62%，互动率1.33% | 蛋仔派对日活77155，发言率0.60% | 未定事件簿发言率321.44%，互动率671.38%</div>
+            </div>
+
+            <div class="conclusion high">
+                <h3>3. 元梦之星是唯一高流量正增长社区 <span class="badge badge-high">高优先</span></h3>
+                <p>元梦之星日活7053(中流量)，增长率+5.14%，发言率7.77%、互动率26.76%均高于同类社区。这是少数同时具备增长潜力和参与深度的社区。</p>
+                <div class="data-source">数据：元梦之星日活7053，增长率5.14%，发言率7.77%，互动率26.76%</div>
+            </div>
+
+            <div class="conclusion medium">
+                <h3>4. 小社区用户参与深度远超头部 <span class="badge badge-medium">中优先</span></h3>
+                <p>未定事件簿(457日活)互动率671%、桃源深处(473日活)互动率312%，远超头部社区的1-3%。小社区用户虽然少，但忠诚度和参与度极高。</p>
+                <div class="data-source">数据：未定事件簿日活457，互动率671.38% | 桃源深处日活473，互动率312.52%</div>
+            </div>
+
+            <div class="conclusion medium">
+                <h3>5. 原神、崩坏流量大但下滑严重 <span class="badge badge-medium">中优先</span></h3>
+                <p>原神日活4.9万但下降13.5%、崩坏日活2.3万下降21.3%。这两个社区流量大但用户流失快，是需要重点关注的预警社区。</p>
+                <div class="data-source">数据：原神日活49310，增长率-13.53% | 崩坏：星穹铁道日活23492，增长率-21.28%</div>
+            </div>
+
+            <div class="conclusion medium">
+                <h3>6. 蛋仔派对人均在线时长最长 <span class="badge badge-medium">中优先</span></h3>
+                <p>蛋仔派对人均在线时长9.96分钟/天，是所有社区中最长的，说明用户粘性好。但其发言率(0.6%)和互动率(2.24%)偏低，说明用户倾向于观看而非互动。</p>
+                <div class="data-source">数据：蛋仔派对人均时长9.96分钟，发言率0.60%，互动率2.24%</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">最高优先级行动</div>
+            <table class="priority-table">
+                <thead>
+                    <tr>
+                        <th>优先级</th>
+                        <th>行动</th>
+                        <th>预期效果</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>加大对元梦之星的资源投入</td>
+                        <td>复制增长模式，成为新增长引擎</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>提升头部社区(王者荣耀、蛋仔派对)用户参与度</td>
+                        <td>将高流量转化为高质量用户</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>分析原神、崩坏下滑原因</td>
+                        <td>止住主要流量来源的流失</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <div class="section-title">四象限概览</div>
+            <div class="quadrant">
+                <div class="quadrant-card star">
+                    <h4>★ 明星社区</h4>
+                    <ul>
+                        <li>王者荣耀</li>
+                        <li>蛋仔派对</li>
+                        <li>光与夜之恋</li>
+                        <li>光遇</li>
+                        <li>第五人格</li>
+                    </ul>
+                </div>
+                <div class="quadrant-card traffic">
+                    <h4>⚠ 流量担当(需激活)</h4>
+                    <ul>
+                        <li>原神</li>
+                        <li>崩坏：星穹铁道</li>
+                        <li>和平精英</li>
+                        <li>绝区零</li>
+                    </ul>
+                </div>
+                <div class="quadrant-card potential">
+                    <h4>🚀 潜力新星</h4>
+                    <ul>
+                        <li>元梦之星</li>
+                        <li>以闪亮之名</li>
+                        <li>肥狐乐园</li>
+                    </ul>
+                </div>
+                <div class="quadrant-card watch">
+                    <h4>👀 观察对象</h4>
+                    <ul>
+                        <li>未定事件簿</li>
+                        <li>白荆回廊</li>
+                        <li>无畏契约</li>
+                        <li>代号：鸢</li>
+                        <li>桃源深处有人家</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            报告生成时间：2025年12月 | 数据来源：分社区数据概况(脱敏).xlsx
+        </div>
+    </div>
+</body>
+</html>
